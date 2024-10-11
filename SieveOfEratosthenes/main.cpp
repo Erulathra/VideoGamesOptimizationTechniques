@@ -42,7 +42,7 @@ int main()
         PrimesSum += !(*Result)[BitIndex] * BitIndex;
     }
 
-    std::printf("Checksum: %lu (expected: 139601928199359)\n", PrimesSum);
+    std::printf("Checksum: %llu (expected: 139601928199359)\n", PrimesSum);
     std::printf("Correct: %s\n", PrimesSum == 139601928199359lu ? "True" : "False");
 
     return 0;
