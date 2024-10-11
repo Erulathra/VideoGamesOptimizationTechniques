@@ -3,7 +3,9 @@ project(VideoGamesOptimizationTechniques)
 
 set(CMAKE_CXX_STANDARD 23)
 
-set(CMAKE_LINKER_TYPE MOLD)
+if (!WIN32)
+    set(CMAKE_LINKER_TYPE MOLD)
+endif()
 
 add_subdirectory(CacheExperiments)
 add_subdirectory(SieveOfEratosthenes)
