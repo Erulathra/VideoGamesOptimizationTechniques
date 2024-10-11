@@ -5,15 +5,17 @@
 
 const uint32_t NUMBERS_TO_CHECK = 70000000;
 
+template<uint32_t NumbersToCheck>
 void FindCompositesUsingErato(std::vector<bool>& Result)
 {
     // zero and one is neighter prime or complex number
-    for (uint32_t BitIndex = 2; BitIndex * BitIndex <= Result.size(); ++BitIndex)
+    uint32_t squareOfNumberToCheck = std::ceil(std::sqrt(NumbersToCheck));
+    for (uint32_t BitIndex = 2; BitIndex <= squareOfNumberToCheck; ++BitIndex)
     {
         // uint32_t number
         if (!Result[BitIndex])
         {
-            for (uint32_t complexNumber = BitIndex * BitIndex; complexNumber <= Result.size(); complexNumber += BitIndex)
+            for (uint32_t complexNumber = BitIndex * BitIndex; complexNumber <= NumbersToCheck; complexNumber += BitIndex)
             {
                 Result[complexNumber] = true;
             }
@@ -29,7 +31,7 @@ int main()
     std::vector<bool> Result(NUMBERS_TO_CHECK + 1, false);
 
 
-    FindCompositesUsingErato(Result);
+    FindCompositesUsingErato<NUMBERS_TO_CHECK + 1>(Result);
 
     const std::chrono::duration<double> ProcessingTime = std::chrono::high_resolution_clock::now() - StartTime;
     double ProcessingSeconds = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(ProcessingTime).count()) * 10e-3;
