@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.28)
-project(CacheExperiments)
+project(SieveOfEratosthenes)
 
-add_executable(${PROJECT_NAME} cache_perf.cpp)
+add_executable(${PROJECT_NAME} main.cpp)
 
 if (WIN32)
     target_link_libraries(${PROJECT_NAME} -static-libstdc++)
