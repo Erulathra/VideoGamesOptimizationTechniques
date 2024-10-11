@@ -10,14 +10,14 @@ void FindCompositesUsingErato(std::bitset<NumbersToCheck>& Result)
 {
     // zero and one is neighter prime or complex number
     uint32_t squareOfNumberToCheck = std::ceil(std::sqrt(NumbersToCheck));
-    for (uint32_t BitIndex = 2; BitIndex <= squareOfNumberToCheck; ++BitIndex)
+    for (uint32_t BitIndex = 0; BitIndex <= squareOfNumberToCheck; ++BitIndex)
     {
-        // uint32_t number
+        uint32_t NumberToCheck = BitIndex * 2 + 1;
         if (!Result[BitIndex])
         {
-            for (uint32_t complexNumber = BitIndex * BitIndex; complexNumber <= NumbersToCheck; complexNumber += BitIndex)
+            for (uint32_t complexNumber = NumberToCheck * NumberToCheck; complexNumber <= NumbersToCheck; complexNumber += NumberToCheck)
             {
-                Result[complexNumber] = true;
+                Result[(complexNumber - 1) * 0.5] = true;
             }
         }
     }
@@ -28,18 +28,18 @@ int main()
     const auto StartTime = std::chrono::high_resolution_clock::now();
 
     // 8.34 MiB is a bit to much for stack allocation
-    auto Result = std::make_unique<std::bitset<NUMBERS_TO_CHECK + 1>>();
+    auto Result = std::make_unique<std::bitset<(NUMBERS_TO_CHECK + 1)>>();
 
-    FindCompositesUsingErato<NUMBERS_TO_CHECK + 1>(*Result);
+    FindCompositesUsingErato<(NUMBERS_TO_CHECK + 1)>(*Result);
 
     const std::chrono::duration<double> ProcessingTime = std::chrono::high_resolution_clock::now() - StartTime;
     const double ProcessingSeconds = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(ProcessingTime).count()) * 10e-3;
     std::printf("Total time: %fs\n", ProcessingSeconds);
 
     uint64_t PrimesSum = 0;
-    for (size_t BitIndex = 2; BitIndex <= Result->size(); ++BitIndex)
+    for (size_t BitIndex = 0; BitIndex <= Result->size(); ++BitIndex)
     {
-        PrimesSum += !(*Result)[BitIndex] * BitIndex;
+        PrimesSum += !(*Result)[BitIndex] * (BitIndex * 2 + 1) ;
     }
 
     std::printf("Checksum: %lu (expected: 139601928199359)\n", PrimesSum);
