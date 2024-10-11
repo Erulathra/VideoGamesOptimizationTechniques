@@ -4,7 +4,6 @@
 #include <cmath>
 
 const uint32_t NUMBERS_TO_CHECK = 70000000;
-const uint32_t L1_CACHE_SIZE = 32768;
 
 template<uint32_t NumbersToCheck>
 void FindCompositesUsingErato(std::bitset<NumbersToCheck>& Result)
@@ -21,20 +20,6 @@ void FindCompositesUsingErato(std::bitset<NumbersToCheck>& Result)
                 Result[(complexNumber - 1) * 0.5] = true;
             }
         }
-    }
-}
-
-template<uint32_t NumbersToCheck, uint64_t CacheSize>
-void FindCompositesUsingSegmentedErato(std::bitset<NumbersToCheck>& Result)
-{
-    uint32_t squareOfNumberToCheck = std::ceil(std::sqrt(NumbersToCheck));
-    uint32_t segmentSize = std::min(squareOfNumberToCheck, CacheSize);
-
-    uint32_t numSegements = std::ceil()
-
-    for (int i = 0; i < MAX; ++i)
-    {
-        
     }
 }
 
