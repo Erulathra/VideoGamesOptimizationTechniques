@@ -6,7 +6,7 @@
 const uint32_t NUMBERS_TO_CHECK = 70000000;
 
 template<uint32_t NumbersToCheck>
-void FindCompositesUsingErato(std::vector<bool>& Result)
+void FindCompositesUsingErato(std::bitset<NumbersToCheck>& Result)
 {
     // zero and one is neighter prime or complex number
     uint32_t squareOfNumberToCheck = std::ceil(std::sqrt(NumbersToCheck));
@@ -27,20 +27,19 @@ int main()
 {
     const auto StartTime = std::chrono::high_resolution_clock::now();
 
-    // std::vector<bool> is special specialization of std::vector<T> where the values are stored as bitflags.
-    std::vector<bool> Result(NUMBERS_TO_CHECK + 1, false);
+    // 8.34 MiB is a bit to much for stack allocation
+    auto Result = std::make_unique<std::bitset<NUMBERS_TO_CHECK + 1>>();
 
-
-    FindCompositesUsingErato<NUMBERS_TO_CHECK + 1>(Result);
+    FindCompositesUsingErato<NUMBERS_TO_CHECK + 1>(*Result);
 
     const std::chrono::duration<double> ProcessingTime = std::chrono::high_resolution_clock::now() - StartTime;
-    double ProcessingSeconds = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(ProcessingTime).count()) * 10e-3;
+    const double ProcessingSeconds = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(ProcessingTime).count()) * 10e-3;
     std::printf("Total time: %fs\n", ProcessingSeconds);
 
     uint64_t PrimesSum = 0;
-    for (size_t BitIndex = 2; BitIndex <= Result.size(); ++BitIndex)
+    for (size_t BitIndex = 2; BitIndex <= Result->size(); ++BitIndex)
     {
-        PrimesSum += !Result[BitIndex] * BitIndex;
+        PrimesSum += !(*Result)[BitIndex] * BitIndex;
     }
 
     std::printf("Checksum: %lu (expected: 139601928199359)\n", PrimesSum);
