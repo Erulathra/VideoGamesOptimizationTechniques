@@ -9,3 +9,4 @@ endif()
 
 add_subdirectory(CacheExperiments)
 add_subdirectory(SieveOfEratosthenes)
+add_subdirectory(BitwiseOperations)
