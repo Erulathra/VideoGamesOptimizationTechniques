@@ -20,23 +20,17 @@ int main()
 
     FindNumbers(Result, NumBits);
 
-    // Copying to array (assignment requirement)
-    auto ResultArray = new std::array<uint64_t, ExpectedNumberOfVariations>;
-    std::ranges::copy(Result, ResultArray->begin());
-
     const auto ProcessingTime = std::chrono::high_resolution_clock::now() - StartTime;
     std::printf("Total time: %fms\n", std::chrono::duration_cast<std::chrono::nanoseconds>(ProcessingTime).count() * 1e-6);
 
     uint64_t CheckSum = 0;
-    for (const uint64_t Number : *ResultArray)
+    for (const uint64_t Number : Result)
     {
         CheckSum += Number;
     }
 
     std::printf("Checksum: %llu (expected: 64424509410)\n", CheckSum);
     std::printf("Correct: %s\n", CheckSum == 64424509410llu ? "True" : "False");
-
-    delete ResultArray;
 
     return 0;
 }
