@@ -3,8 +3,4 @@ project(SieveOfEratosthenes)
 
 add_executable(${PROJECT_NAME} main.cpp)
 
-if (WIN32)
-    target_link_libraries(${PROJECT_NAME} -static-libstdc++)
-else()
-    target_link_libraries(${PROJECT_NAME} stdc++)
-endif()
+target_link_stdlib(${PROJECT_NAME})

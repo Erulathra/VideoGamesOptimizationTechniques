@@ -3,7 +3,6 @@
 #include <cstring>
 #include <iostream>
 #include <thread>
-#include <unordered_set>
 
 void FindNumbers(std::vector<uint64_t>& Result, uint32_t NumBits);
 
