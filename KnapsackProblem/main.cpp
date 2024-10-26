@@ -7,6 +7,7 @@
 
 #include "lazycsv.hpp"
 #include "PerformanceCounter.h"
+#include "tracy/Tracy.hpp"
 
 struct PackItem
 {
@@ -68,7 +69,7 @@ std::vector<PackItem> GenerateData(const uint32_t Num, const float MaxPoint)
     return Result;
 }
 
-float CalculateBound(const GraphNode& Node, const std::vector<PackItem>& Items, const float MaxWeight)
+inline float CalculateBound(const GraphNode& Node, const std::vector<PackItem>& Items, const float MaxWeight)
 {
     if (Node.CurrentWeight > MaxWeight)
     {
@@ -100,17 +101,24 @@ float CalculateBound(const GraphNode& Node, const std::vector<PackItem>& Items, 
     return Bound;
 }
 
-float SolveKnapsack(const std::vector<PackItem>& Items, const float MaxWeight)
+float SolveKnapsack(std::vector<PackItem>& Items, const float MaxWeight)
 {
     assert(!Items.empty());
     assert(MaxWeight > 0);
+
+    std::ranges::sort_heap(Items, [](const PackItem& LeftItem, const PackItem& RightItem) -> bool
+    {
+        const float RatioLeft = LeftItem.Point / LeftItem.Weight;
+        const float RatioRight = RightItem.Point / RightItem.Weight;
+        return RatioLeft < RatioRight;
+    });
 
     const uint32_t NumItems = Items.size();
 
     float MaxPointsSum = 0.f;
     std::queue<GraphNode> NodesToProcessQueue;
 
-    // Emplace firs node
+    // Emplace first node
     NodesToProcessQueue.emplace();
     GraphNode CurrentNode, ChildNode;
 
@@ -162,7 +170,7 @@ float SolveKnapsack(const std::vector<PackItem>& Items, const float MaxWeight)
 }
 
 #define TEST_MODE 0
-#define NUM_TESTS 20
+#define NUM_TESTS 50
 #define PROBE_SIZE 1000
 #define MAX_WEIGHT 4.f
 
@@ -188,15 +196,13 @@ int32_t main(int32_t argc, char** argv)
     for (uint32_t TestIndex = 1; TestIndex < NUM_TESTS + 1; ++TestIndex)
     {
         double AverageTime = 0.f;
+        double GenerateDataTime = 0.f;
+
         for (uint32_t ProbeIndex = 0; ProbeIndex < PROBE_SIZE; ++ProbeIndex)
         {
+            PerfCounter.Reset();
             std::vector<PackItem> Data = GenerateData(TestIndex, 100.f);
-            std::ranges::sort(Data, [](const PackItem& LeftItem, const PackItem& RightItem) -> bool
-            {
-                const float RatioLeft = LeftItem.Point / LeftItem.Weight;
-                const float RatioRight = RightItem.Point / RightItem.Weight;
-                return RatioLeft > RatioRight;
-            });
+            GenerateDataTime += PerfCounter.Elapsed();
 
             PerfCounter.Reset();
             float Result = SolveKnapsack(Data, MAX_WEIGHT);
@@ -204,9 +210,9 @@ int32_t main(int32_t argc, char** argv)
         }
         AverageTime /= PROBE_SIZE;
 
-        auto PrintResult = [TestIndex, AverageTime](std::ostream& os)
+        auto PrintResult = [&](std::ostream& os)
         {
-            std::print(os, "{},{}\n", TestIndex, AverageTime);
+            std::print(os, "{},{},{}\n", TestIndex, AverageTime, GenerateDataTime);
         };
 
         PrintResult(std::cout);

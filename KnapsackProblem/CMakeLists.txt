@@ -6,7 +6,7 @@ add_executable(${PROJECT_NAME} main.cpp)
 target_link_stdlib(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} CommonHeaders)
 target_link_libraries(${PROJECT_NAME} lazycsv)
-target_link_libraries(${PROJECT_NAME} cxxopts)
+target_link_libraries(${PROJECT_NAME} Tracy::TracyClient)
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E create_symlink
