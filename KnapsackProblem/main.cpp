@@ -18,12 +18,12 @@ struct PackItem
 // 16 bytes of data. Cache likes that.
 struct GraphNode
 {
-    uint32_t ItemIndex;
+    int32_t ItemIndex;
     float PointsSum;
     float Bound;
     float CurrentWeight;
 
-    GraphNode(uint32_t InItemIndex, float InPointsSum, float InBound, float InCurrentWeight)
+    GraphNode(int32_t InItemIndex, float InPointsSum, float InBound, float InCurrentWeight)
         : ItemIndex(InItemIndex),
           PointsSum(InPointsSum),
           Bound(InBound),
@@ -120,11 +120,10 @@ float SolveKnapsack(std::vector<PackItem>& Items, const float MaxWeight)
 
     // Emplace first node
     NodesToProcessQueue.emplace();
-    GraphNode CurrentNode, ChildNode;
 
     while (!NodesToProcessQueue.empty())
     {
-        CurrentNode = NodesToProcessQueue.front();
+        GraphNode CurrentNode = NodesToProcessQueue.front();
         NodesToProcessQueue.pop();
 
         if (CurrentNode.ItemIndex < 0)
@@ -138,11 +137,15 @@ float SolveKnapsack(std::vector<PackItem>& Items, const float MaxWeight)
             continue;
         }
 
-        ChildNode.ItemIndex = CurrentNode.ItemIndex + 1;
-        const auto ChildItemIt = Items.begin() + ChildNode.ItemIndex;
+        const auto ChildItemIt = Items.begin() + CurrentNode.ItemIndex + 1;
 
-        ChildNode.CurrentWeight = CurrentNode.CurrentWeight + ChildItemIt->Weight;
-        ChildNode.PointsSum = CurrentNode.PointsSum + ChildItemIt->Point;
+        GraphNode ChildNode
+        {
+            CurrentNode.ItemIndex + 1,
+            CurrentNode.PointsSum + ChildItemIt->Point,
+            0.f,
+            CurrentNode.CurrentWeight + ChildItemIt->Weight,
+        };
 
         if (ChildNode.CurrentWeight <= MaxWeight && ChildNode.PointsSum > MaxPointsSum)
         {
@@ -170,7 +173,7 @@ float SolveKnapsack(std::vector<PackItem>& Items, const float MaxWeight)
 }
 
 #define TEST_MODE 0
-#define NUM_TESTS 50
+#define NUM_TESTS 30
 #define PROBE_SIZE 1000
 #define MAX_WEIGHT 4.f
 
