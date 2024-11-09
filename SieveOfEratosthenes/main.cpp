@@ -3,6 +3,8 @@
 #include <bitset>
 #include <cmath>
 
+#include "../CommonHeaders/Public/PerformanceCounter.h"
+
 const uint32_t NUMBERS_TO_CHECK = 70000000;
 
 template<uint32_t NumbersToCheck>
@@ -25,16 +27,15 @@ void FindCompositesUsingErato(std::bitset<NumbersToCheck>& Result)
 
 int main()
 {
-    const auto StartTime = std::chrono::high_resolution_clock::now();
+    PerformanceCounter PerfCounter;
+    PerfCounter.Reset();
 
     // 8.34 MiB is a bit too much for stack allocation
     auto Result = std::make_unique<std::bitset<(NUMBERS_TO_CHECK + 1)>>();
 
     FindCompositesUsingErato<(NUMBERS_TO_CHECK + 1)>(*Result);
 
-    const std::chrono::duration<double> ProcessingTime = std::chrono::high_resolution_clock::now() - StartTime;
-    const double ProcessingSeconds = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(ProcessingTime).count()) * 10e-3;
-    std::printf("Total time: %fs\n", ProcessingSeconds);
+    std::printf("Total time: %fms\n", PerfCounter.Elapsed());
 
     uint64_t PrimesSum = 0;
     for (size_t BitIndex = 2; BitIndex <= Result->size(); ++BitIndex)

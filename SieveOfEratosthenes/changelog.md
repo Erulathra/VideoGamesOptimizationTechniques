@@ -1,0 +1,2 @@
+# Improvements
+* fix time calculation
