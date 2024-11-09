@@ -34,17 +34,17 @@ int main()
     PerfCounter.Reset();
 
     // 8.34 MiB is a bit too much for stack allocation
-    auto Result = std::make_unique<std::bitset<(NUMBERS_TO_CHECK - 1) / 2>>();
+    std::bitset<(NUMBERS_TO_CHECK - 1) / 2> Result;
 
-    FindCompositesUsingErato<NUMBERS_TO_CHECK>(*Result);
+    FindCompositesUsingErato<NUMBERS_TO_CHECK>(Result);
 
     std::printf("Total time: %fms\n", PerfCounter.Elapsed());
 
     // we are skipping even nubers so we need to add 2 to whole sum
     uint64_t PrimesSum = 2;
-    for (size_t BitIndex = 1; BitIndex <= Result->size(); ++BitIndex)
+    for (size_t BitIndex = 1; BitIndex <= Result.size(); ++BitIndex)
     {
-        PrimesSum += !(*Result)[BitIndex] * (2 * BitIndex + 1);
+        PrimesSum += !Result[BitIndex] * (2 * BitIndex + 1);
     }
 
     std::printf("Checksum: %llu (expected: 139601928199359)\n", PrimesSum);
