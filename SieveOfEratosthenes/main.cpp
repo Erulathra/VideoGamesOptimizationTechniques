@@ -11,8 +11,8 @@ const static uint32_t NUMBERS_TO_CHECK = 70000000;
 
 const static uint32_t L1_SIZE = get_l1d_cache_size() * 1024;
 
-template<uint32_t NumbersToCheck>
-void FindCompositesUsingErato(std::bitset<(NumbersToCheck - 1)/ 2>& Result)
+// template<uint32_t NumbersToCheck>
+void FindCompositesUsingErato(std::vector<bool>& Result, const uint32_t NumbersToCheck)
 {
     // zero and one is neither prime nor complex number
     uint32_t squareOfNumberToCheck = std::ceil(std::sqrt(NumbersToCheck));
@@ -27,8 +27,6 @@ void FindCompositesUsingErato(std::bitset<(NumbersToCheck - 1)/ 2>& Result)
             }
         }
     }
-
-
 }
 
 int main()
@@ -36,9 +34,10 @@ int main()
     PerformanceCounter PerfCounter;
     PerfCounter.Reset();
 
-    std::bitset<(NUMBERS_TO_CHECK - 1) / 2> Result;
+    std::vector<bool> Result;
+    Result.resize((NUMBERS_TO_CHECK - 1) / 2);
 
-    FindCompositesUsingErato<NUMBERS_TO_CHECK>(Result);
+    FindCompositesUsingErato(Result, NUMBERS_TO_CHECK);
 
     std::printf("Total time: %fms\n", PerfCounter.Elapsed());
 
