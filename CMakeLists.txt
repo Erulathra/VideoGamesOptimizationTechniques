@@ -9,6 +9,12 @@ if (UNIX)
     set(CMAKE_LINKER_TYPE MOLD)
 endif()
 
+if (MSVC)
+    add_compile_options(/arch:SSE4.1)
+else ()
+    add_compile_options(-msse4.1)
+endif ()
+
 function(target_link_stdlib)
     if (WIN32)
         target_link_libraries(${ARGV0} -static-libstdc++)

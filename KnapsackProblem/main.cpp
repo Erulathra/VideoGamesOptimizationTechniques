@@ -7,7 +7,6 @@
 
 #include "lazycsv.hpp"
 #include "PerformanceCounter.h"
-#include "tracy/Tracy.hpp"
 
 struct PackItem
 {
