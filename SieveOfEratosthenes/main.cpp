@@ -3,21 +3,27 @@
 #include <bitset>
 #include <cmath>
 
-const uint32_t NUMBERS_TO_CHECK = 70000000;
+#include "PerformanceCounter.h"
+#include "L1DataCacheSize.h"
 
-template<uint32_t NumbersToCheck>
-void FindCompositesUsingErato(std::bitset<NumbersToCheck>& Result)
+const static uint32_t NUMBERS_TO_CHECK = 70000000;
+// const uint32_t NUMBERS_TO_CHECK = 25;
+
+const static uint32_t L1_SIZE = get_l1d_cache_size() * 1024;
+
+// template<uint32_t NumbersToCheck>
+void FindCompositesUsingErato(std::vector<bool>& Result, const uint32_t NumbersToCheck)
 {
     // zero and one is neither prime nor complex number
     uint32_t squareOfNumberToCheck = std::ceil(std::sqrt(NumbersToCheck));
-    for (uint32_t BitIndex = 2; BitIndex <= squareOfNumberToCheck; ++BitIndex)
+    for (uint32_t BitIndex = 1; BitIndex <= squareOfNumberToCheck; ++BitIndex)
     {
-        uint32_t NumberToCheck = BitIndex;
+        uint32_t NumberToCheck = 2 * BitIndex + 1;
         if (!Result[BitIndex])
         {
-            for (uint32_t multiply = NumberToCheck * NumberToCheck; multiply <= NumbersToCheck; multiply += NumberToCheck)
+            for (uint32_t multiply = NumberToCheck * NumberToCheck; multiply < NumbersToCheck; multiply += 2 * NumberToCheck)
             {
-                Result[multiply] = true;
+                Result[(multiply - 1) / 2] = true;
             }
         }
     }
@@ -25,23 +31,30 @@ void FindCompositesUsingErato(std::bitset<NumbersToCheck>& Result)
 
 int main()
 {
-    const auto StartTime = std::chrono::high_resolution_clock::now();
+    PerformanceCounter PerfCounter;
+    PerfCounter.Reset();
 
-    // 8.34 MiB is a bit too much for stack allocation
-    auto Result = std::make_unique<std::bitset<(NUMBERS_TO_CHECK + 1)>>();
+    std::vector<bool> Result;
+    Result.resize((NUMBERS_TO_CHECK - 1) / 2);
 
-    FindCompositesUsingErato<(NUMBERS_TO_CHECK + 1)>(*Result);
+    FindCompositesUsingErato(Result, NUMBERS_TO_CHECK);
 
-    const std::chrono::duration<double> ProcessingTime = std::chrono::high_resolution_clock::now() - StartTime;
-    const double ProcessingSeconds = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(ProcessingTime).count()) * 10e-3;
-    std::printf("Total time: %fs\n", ProcessingSeconds);
+    std::printf("Total time: %fms\n", PerfCounter.Elapsed());
 
-    uint64_t PrimesSum = 0;
-    for (size_t BitIndex = 2; BitIndex <= Result->size(); ++BitIndex)
+    // we are skipping even nubers so we need to add 2 to whole sum
+    uint64_t PrimesSum = 2;
+    uint64_t PrimesNum = 1;
+    for (size_t BitIndex = 1; BitIndex <= Result.size(); ++BitIndex)
     {
-        PrimesSum += !(*Result)[BitIndex] * BitIndex;
+        PrimesSum += !Result[BitIndex] * (2 * BitIndex + 1);
+        ++PrimesNum;
     }
 
+    std::printf("L1 Size: %f KiB\n", static_cast<float>(L1_SIZE) / 1024.f);
+
+    std::printf("Num primes in set: %llu\n", PrimesNum);
+    std::printf("Size of primes in set: %f MiB\n", static_cast<float>(PrimesNum) * sizeof(uint64_t) / 1024.f / 1024.f);
+    std::printf("Size of bitset: %lu MiB\n", sizeof(Result) / 1024.f / 1024.f);
     std::printf("Checksum: %llu (expected: 139601928199359)\n", PrimesSum);
     std::printf("Correct: %s\n", PrimesSum == 139601928199359lu ? "True" : "False");
 
