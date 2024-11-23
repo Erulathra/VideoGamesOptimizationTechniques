@@ -107,10 +107,16 @@ int32_t ForwardElimination(float4x3& Matrix)
 
         if (Pivot.Id != k)
         {
-            // TODO: SSE Swap
-            std::swap(Matrix[k], Matrix[Pivot.Id]);
+            // Swapping using SSE is a bit faster
+            // std::swap(Matrix[k], Matrix[Pivot.Id]);
+
+            __m128 Temp = Matrix[Pivot.Id].SSEData;
+            Matrix[Pivot.Id].SSEData = Matrix[k].SSEData;
+            Matrix[k].SSEData = Temp;
         }
 
+        // Unrolled loop is slower
+// #pragma GCC unroll 3
         for (uint32_t i = k + 1; i < 3; i++)
         {
             float Factor = Matrix[i][k] / Matrix[k][k];
@@ -210,7 +216,7 @@ int32_t main()
 
     std::printf("=======| Benchmark |=======\n");
 
-    constexpr uint32_t NumTestMatrices = 1000;
+    constexpr uint32_t NumTestMatrices = 10000;
     constexpr float BenchmarkTime = 0.1f;
 
     std::vector<float4x3> MatricesToSolve;
@@ -226,7 +232,7 @@ int32_t main()
     float LastTime = PerfCounter.Elapsed();
     for (uint32_t MatrixId = 0; MatrixId < NumTestMatrices; ++MatrixId)
     {
-        MatricesToSolve.push_back(float4x3::GetRandom());
+        GaussianElimination(MatricesToSolve[MatrixId], Result);
 
         if (PerfCounter.Elapsed() > BenchmarkTime)
         {
